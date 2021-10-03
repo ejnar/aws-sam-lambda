@@ -1,9 +1,10 @@
 const AWS = require("aws-sdk");
 
-const table = "dynamodb-music-table";
+// const table = "dynamodb-music-table";
+const table = process.env.TABLE_NAME;
 const dynamo = new AWS.DynamoDB.DocumentClient();
 
-exports.music = async (event, context) => {
+exports.music = async (event) => {
   let body;
   let statusCode = 200;
   const headers = {
@@ -12,25 +13,6 @@ exports.music = async (event, context) => {
 
   try {
     switch (event.routeKey) {
-      case "DELETE /music/{id}":
-        await dynamo
-          .delete({ TableName: table,
-            Key: {
-              id: event.pathParameters.id
-            }
-          })
-          .promise();
-        body = `Deleted item ${event.pathParameters.id}`;
-        break;
-      case "GET /music/{id}":
-        body = await dynamo
-          .get({ TableName: table,
-            Key: {
-              id: event.pathParameters.id
-            }
-          })
-          .promise();
-        break;
       case "GET /music":
         body = await dynamo.scan({ TableName: table }).promise();
         break;

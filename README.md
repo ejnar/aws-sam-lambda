@@ -59,14 +59,14 @@ Build your application with the `sam build` command.
 sigma-sam-project$ sam build
 ```
 
-The SAM CLI installs dependencies defined in `hello-world/package.json`, creates a deployment package, and saves it in the `.aws-sam/build` folder.
+The SAM CLI installs dependencies defined in `music/package.json`, creates a deployment package, and saves it in the `.aws-sam/build` folder.
 
 Test a single function by invoking it directly with a test event. An event is a JSON document that represents the input that the function receives from the event source. Test events are included in the `events` folder in this project.
 
 Run functions locally and invoke them with the `sam local invoke` command.
 
 ```bash
-sigma-sam-project$ sam local invoke HelloWorldFunction --event events/event.json
+sigma-sam-project$ sam local invoke MusicFunction --event events/event.json
 ```
 
 The SAM CLI can also emulate your application's API. Use the `sam local start-api` to run the API locally on port 3000.
@@ -127,44 +127,22 @@ See the [AWS SAM developer guide](https://docs.aws.amazon.com/serverless-applica
 Next, you can use AWS Serverless Application Repository to deploy ready to use Apps that go beyond hello world samples and learn how authors developed their applications: [AWS Serverless Application Repository main page](https://aws.amazon.com/serverless/serverlessrepo/)
 
 
-Bucket: lambda-eu-west-1-753745640722
-
-Init project:
-sam init --runtime nodejs10.x
+Init a SAM project:
+sam init --runtime nodejs14.x
 
 Init node function:
 npm init -y
 
-Install npm lib:
-npm install --save moment
-
+Bygg project:
 sam build
 
 Create bucket:
-aws s3 --region eu-west-1 mb s3://lambda-eu-west-1-753745640722
+aws s3 --region eu-west-1 mb s3://<Bucket>
 
-sam package --region eu-west-1 --template-file template.yaml --output-template-file pck.yml --s3-bucket lambda-eu-west-1-753745640722
+sam package --template-file template.yaml --output-template-file pck.yml --s3-bucket <Bucket>
 
-sam deploy --region eu-west-1 --capabilities CAPABILITY_IAM --template-file pck.yml --stack-name sigma-sam-project
+sam deploy --capabilities CAPABILITY_IAM --template-file pck.yml --stack-name sigma-sam-project
 
-sam logs --name ClockFunction --stack-name sigma-sam-project --region eu-west-1 --tail
+sam logs --name MusicFunction --stack-name sigma-sam-project --tail
 
-aws cloudformation --region eu-west-1 delete-stack --stack-name sigma-sam-project
-
-
-  PostMusicFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-    Properties:
-      CodeUri: music/
-      Handler: handler.music
-      Runtime: nodejs14.x
-      Architectures:
-        - x86_64
-      Policies: AmazonDynamoDBFullAccess
-      MemorySize: 128
-      Events:
-        PostMusicApi:
-          Type: HttpApi
-          Properties:
-            Path: '/music/{id}'
-            Method: GET          
+aws cloudformation delete-stack --stack-name sigma-sam-project
